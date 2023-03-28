@@ -37,7 +37,7 @@ This action can be particularly useful to check the status of a container launch
 ## Example usage
 
 ```yml
-uses: artiz/wait-for-endpoint@v1.0.3
+uses: artiz/poll-endpoint@v1.0.1
 with:
   url: http://localhost:8080
   method: GET

@@ -1,5 +1,5 @@
 {
-  "name": "wait-for-endpoint",
+  "name": "poll-endpoint",
   "private": true,
   "scripts": {
     "build": "ncc build src/index.ts"
