@@ -3,8 +3,16 @@ import * as http from "@actions/http-client";
 
 const SUPPORTED_METHODS = ["GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"];
 
-function getInput(name: string): string {
-  return core.getInput(name, { required: true, trimWhitespace: true });
+function getInput(name: string, required = false): string {
+  return core.getInput(name, { required, trimWhitespace: true });
+}
+
+function getInputNumber(name: string, defaultValue = 0): number {
+  const input = core.getInput(name, { required: false, trimWhitespace: true });
+  if (input === "" || isNaN(+input)) {
+    return defaultValue;
+  }
+  return +input;
 }
 
 async function delay(ms: number): Promise<void> {
@@ -13,11 +21,13 @@ async function delay(ms: number): Promise<void> {
 
 async function main() {
   try {
-    const url = getInput("url");
-    const method = getInput("method").toUpperCase();
-    const expectedStatus = parseInt(getInput("expected-status"));
-    const timeout = parseInt(getInput("timeout"));
-    const interval = parseInt(getInput("interval"));
+    const url = getInput("url", true);
+    const method = getInput("method")?.toUpperCase() || "GET";
+    const expectBody = getInput("expectBody");
+    const expectBodyRe = getInput("expectBodyRegex");
+    const expectStatus = getInputNumber("expectStatus", 200);
+    const timeout = getInputNumber("timeout", 60000);
+    const interval = getInputNumber("interval", 1000);
 
     if (!SUPPORTED_METHODS.includes(method)) {
       core.setFailed("Specify a valid HTTP method.");
@@ -25,24 +35,40 @@ async function main() {
     }
 
     const client = new http.HttpClient();
-    const startTime = new Date().getTime();
+    const startTime = Date.now();
+    const bodyRegex = expectBodyRe && new RegExp(expectBodyRe);
 
-    while (new Date().getTime() - startTime < timeout) {
+    let error: Error | undefined;
+
+    while (Date.now() - startTime < timeout) {
       try {
         const response = await client.request(method, url, null, {});
         const status = response.message.statusCode;
 
-        if (status === expectedStatus) {
+        if (status === expectStatus) {
+          const body = await response.readBody();
+
+          if (expectBody && expectBody !== body) {
+            throw new Error(`Expected body: ${expectBody}, actual body: ${body}`);
+          }
+          if (bodyRegex && !bodyRegex.test(body)) {
+            throw new Error(`Expected body regex: ${expectBodyRe}, actual body: ${body}`);
+          }
+
+          core.setOutput("response", body);
+          core.setOutput("headers", response.message.rawHeaders);
+
           return;
-        } else {
-          await delay(interval);
         }
-      } catch {
-        await delay(interval);
+      } catch (e) {
+        // core.debug(e.message);
+        error = e;
       }
+
+      await delay(interval);
     }
 
-    core.setFailed("Waiting exceeded timeout.");
+    core.setFailed(error?.message || "Waiting exceeded timeout.");
   } catch (error) {
     core.setFailed(error.message);
   }

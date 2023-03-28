@@ -12,28 +12,37 @@ This action can be particularly useful to check the status of a container launch
 
 ### `method`
 
-**Required** The HTTP method to use. Default `"GET"`.
+**Optional** The HTTP method to use. Default `"GET"`.
 
-### `expected-status`
+### `expectStatus`
 
-**Required** The HTTP status that is expected. Default `"200"`.
+**Optional** The HTTP status that is expected. Default `"200"`.
+
+### `expectBody`
+
+**Optional** Response body that is expected.
+
+### `expectBodyRegex`
+
+**Optional** Regex to match expected response body
 
 ### `timeout`
 
-**Required** The maximum time the polling is allowed to run for (in milliseconds). Default `"60000"`.
+**Optional** The maximum time the polling is allowed to run for (in milliseconds). Default `"60000"`.
 
 ### `interval`
 
-**Required** The interval at which the polling should happen (in milliseconds). Default `"1000"`.
+**Optional** The interval at which the polling should happen (in milliseconds). Default `"1000"`.
 
 ## Example usage
 
 ```yml
-uses: emilioschepis/wait-for-endpoint@v1.0.3
+uses: artiz/wait-for-endpoint@v1.0.3
 with:
   url: http://localhost:8080
   method: GET
-  expected-status: 200
+  expect-status: 200
+  expect-response-regex: /"revision":"1\.00"/
   timeout: 60000
   interval: 1000
 ```
