@@ -1,4 +1,4 @@
-# Wait For Endpoint GitHub Action
+# Poll Endpoint GitHub Action
 
 This action polls a specified HTTP or HTTPS endpoint until it responds with the expected status code or the timeout is exceeded.
 
