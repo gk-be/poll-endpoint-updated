@@ -37,12 +37,12 @@ This action can be particularly useful to check the status of a container launch
 ## Example usage
 
 ```yml
-uses: artiz/poll-endpoint@v1.0.1
+uses: artiz/poll-endpoint@1.0.2
 with:
   url: http://localhost:8080
   method: GET
   expect-status: 200
-  expect-response-regex: /"revision":"1\.00"/
+  expect-response-regex: "\"revision\":\"1\.00\""
   timeout: 60000
   interval: 1000
 ```
