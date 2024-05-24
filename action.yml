@@ -1,4 +1,4 @@
-name: "Poll Endpoint"
+name: "Poll Endpoint Updated"
 description: "A GitHub Action that polls a specified HTTP endpoint until it becomes available. Based on emilioschepis/wait-for-endpoint"
 author: "Artem Kustikov"
 branding:
